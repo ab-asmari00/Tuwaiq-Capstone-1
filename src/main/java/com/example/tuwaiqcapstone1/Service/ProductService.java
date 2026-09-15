@@ -1,28 +1,43 @@
 package com.example.tuwaiqcapstone1.Service;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import com.example.tuwaiqcapstone1.Model.Product;
+import org.springframework.stereotype.Service;
 
-@Data
-@AllArgsConstructor
+import java.util.ArrayList;
+
+@Service
 public class ProductService {
 
-    // Don't forget!! Add validation messages =======#%
-    @NotEmpty
-    private String id;
+    private ArrayList<Product> products = new ArrayList<>();
 
-    @NotEmpty
-    @Size(min = 4)
-    private String name;
+    public ArrayList<Product> getProducts() {
+        return products;
+    }
 
-    @NotEmpty
-    @Positive
-    private double price;
+    public void addProduct(Product product) {
+        products.add(product);
+    }
 
-    @NotEmpty
-    private String categoryID;
+    public boolean updateProduct(String id, Product product) {
+
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getId().equals(id)) {
+                products.set(i, product);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean deleteProduct(String id) {
+
+        for (int i = 0; i < products.size(); i++) {
+            if (products.get(i).getId().equals(id)) {
+                products.remove(i);
+                return true;
+            }
+        }
+        return false;
+    }
 
 }
