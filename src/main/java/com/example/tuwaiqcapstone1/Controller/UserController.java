@@ -64,8 +64,8 @@ public class UserController {
         return ResponseEntity.status(200).body(new ApiResponse("User has ben deleted successfully"));
     }
 
-    @PutMapping("/buy")
-    public ResponseEntity<?> buyProduct(@RequestParam String userId, @RequestParam String productId, @RequestParam String merchantId) {
+    @PutMapping("/buy/{userId}/{productId}/{merchantId}")
+    public ResponseEntity<?> buyProduct(@PathVariable String userId, @PathVariable String productId, @PathVariable String merchantId) {
         int result = userService.buyProduct(userId, productId, merchantId);
 
         switch (result) {
@@ -84,8 +84,8 @@ public class UserController {
         return ResponseEntity.status(200).body(new ApiResponse("Purchase has ben completed successfully"));
     }
 
-    @PutMapping("/addBalance")
-    public ResponseEntity<?> addBalance(@RequestParam String userId, @RequestParam double amount) {
+    @PutMapping("/addBalance/{userId}/{amount}")
+    public ResponseEntity<?> addBalance(@PathVariable String userId, @PathVariable double amount) {
         int result = userService.addBalance(userId, amount);
 
         switch (result) {
@@ -98,8 +98,8 @@ public class UserController {
         return ResponseEntity.status(200).body(new ApiResponse("Balance has ben added successfully"));
     }
 
-    @PostMapping("/addMerchant")
-    public ResponseEntity<?> addMerchant(@RequestParam String userId, @RequestParam String merchantId, @RequestParam String merchantName) {
+    @PostMapping("/addMerchant/{userId}/{merchantId}/{merchantName}")
+    public ResponseEntity<?> addMerchant(@PathVariable String userId, @PathVariable String merchantId, @PathVariable String merchantName) {
         int result = userService.addMerchant(userId, merchantId, merchantName);
 
         switch (result) {
@@ -111,5 +111,4 @@ public class UserController {
 
         return ResponseEntity.status(200).body(new ApiResponse("Merchant has ben added successfully"));
     }
-
 }

@@ -64,8 +64,8 @@ public class MerchantStockController {
         return ResponseEntity.status(200).body(new ApiResponse("MerchantStock has ben deleted successfully"));
     }
 
-    @PutMapping("/addStock")
-    public ResponseEntity<?> addStock(@RequestParam String productId, @RequestParam String merchantId, @RequestParam int stock) {
+    @PutMapping("/addStock/{productId}/{merchantId}/{stock}")
+    public ResponseEntity<?> addStock(@PathVariable String productId, @PathVariable String merchantId, @PathVariable int stock) {
         boolean isAdded = merchantStockService.addStock(productId, merchantId, stock);
 
         if (!isAdded) {

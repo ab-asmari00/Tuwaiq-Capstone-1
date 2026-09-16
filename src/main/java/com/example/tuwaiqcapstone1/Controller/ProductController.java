@@ -64,8 +64,8 @@ public class ProductController {
         return ResponseEntity.status(200).body(new ApiResponse("Product has ben deleted successfully"));
     }
 
-    @PutMapping("/discount")
-    public ResponseEntity<?> discount(@RequestParam String productId, @RequestParam double percentage) {
+    @PutMapping("/discount/{productId}/{percentage}")
+    public ResponseEntity<?> discount(@PathVariable String productId, @PathVariable double percentage) {
         int result = productService.discount(productId, percentage);
 
         switch (result) {
