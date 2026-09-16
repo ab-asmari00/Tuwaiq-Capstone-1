@@ -147,4 +147,35 @@ public class UserController {
                 return ResponseEntity.status(400).body(new ApiResponse("An unexpected error occurred."));
         }
     }
+
+    @PutMapping("/tradeIn/{userId}/{ownedProductId}/{targetMerchantStockId}")
+    public ResponseEntity<ApiResponse> tradeIn(@PathVariable String userId, @PathVariable String ownedProductId, @PathVariable String targetMerchantStockId) {
+
+        int statusCode = userService.tradeIn(userId, ownedProductId, targetMerchantStockId);
+
+        switch (statusCode) {
+            case 0:
+                return ResponseEntity.status(200).body(new ApiResponse("Product trade-in completed successfully!"));
+            case 1:
+                return ResponseEntity.status(400).body(new ApiResponse("User ID must start with U-"));
+            case 2:
+                return ResponseEntity.status(400).body(new ApiResponse("Owned Product ID must start with P-"));
+            case 3:
+                return ResponseEntity.status(400).body(new ApiResponse("Target MerchantStock ID must start with MS-"));
+            case 4:
+                return ResponseEntity.status(400).body(new ApiResponse("User not found"));
+            case 5:
+                return ResponseEntity.status(400).body(new ApiResponse("Owned product not found"));
+            case 6:
+                return ResponseEntity.status(400).body(new ApiResponse("Target merchant stock not found"));
+            case 7:
+                return ResponseEntity.status(400).body(new ApiResponse("Target item is out of stock"));
+            case 8:
+                return ResponseEntity.status(400).body(new ApiResponse("Target product record not found"));
+            case 9:
+                return ResponseEntity.status(400).body(new ApiResponse("User has insufficient balance to pay the price difference"));
+            default:
+                return ResponseEntity.status(400).body(new ApiResponse("An unexpected error occurred."));
+        }
+    }
 }

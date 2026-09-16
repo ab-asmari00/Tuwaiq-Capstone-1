@@ -266,4 +266,83 @@ public class UserService {
         return 0; // Success
     }
 
+    public int tradeIn(String userId, String ownedProductId, String targetMerchantStockId) {
+
+        if (userId == null || !userId.startsWith("U-")) {
+            return 1; // Invalid user ID
+        }
+        if (ownedProductId == null || !ownedProductId.startsWith("P-")) {
+            return 2; // Invalid owned product ID
+        }
+        if (targetMerchantStockId == null || !targetMerchantStockId.startsWith("MS-")) {
+            return 3; // Invalid target merchant stock ID
+        }
+
+        User user = null;
+        for (User u : this.users) {
+            if (u.getId().equals(userId)) {
+                user = u;
+                break;
+            }
+        }
+        if (user == null) {
+            return 4; // User not found
+        }
+
+        Product ownedProduct = null;
+        for (Product p : productService.getProducts()) {
+            if (p.getId().equals(ownedProductId)) {
+                ownedProduct = p;
+                break;
+            }
+        }
+        if (ownedProduct == null) {
+            return 5; // Owned product record not found
+        }
+
+        MerchantStock targetStock = null;
+        for (MerchantStock ms : merchantStockService.getMerchantStocks()) {
+            if (ms.getId().equals(targetMerchantStockId)) {
+                targetStock = ms;
+                break;
+            }
+        }
+        if (targetStock == null) {
+            return 6; // Target merchant stock not found
+        }
+
+        if (targetStock.getStock() < 1) {
+            return 7; // Target item out of stock
+        }
+
+        Product targetProduct = null;
+        for (Product p : productService.getProducts()) {
+            if (p.getId().equals(targetStock.getProductId())) {
+                targetProduct = p;
+                break;
+            }
+        }
+        if (targetProduct == null) {
+            return 8; // Target product record not found
+        }
+
+        double tradeInCredit = ownedProduct.getPrice() * 0.70;
+        double targetPrice = targetProduct.getPrice();
+        double netPriceDifference = targetPrice - tradeInCredit;
+
+        if (netPriceDifference > 0 && user.getBalance() < netPriceDifference) {
+            return 9; // User has insufficient balance to pay the difference
+        }
+
+        if (netPriceDifference > 0) {
+            user.setBalance(user.getBalance() - netPriceDifference);
+        } else if (netPriceDifference < 0) {
+            user.setBalance(user.getBalance() + Math.abs(netPriceDifference));
+        }
+
+        targetStock.setStock(targetStock.getStock() - 1);
+
+        return 0; // Success
+    }
+
 }
