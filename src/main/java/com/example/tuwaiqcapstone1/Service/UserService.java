@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -151,6 +152,118 @@ public class UserService {
         merchantService.addMerchant(merchant);
 
         return 0; // Merchant added successfully
+    }
+
+    public int groupBuy(String merchantStockId, ArrayList<Map<String, Object>> buyers) {
+
+        if (merchantStockId == null || !merchantStockId.startsWith("MS-")) {
+            return 1; // MerchantStock Id must start with MS
+        }
+
+        if (buyers == null || buyers.isEmpty()) {
+            return 2; //Group buy requires at least one buyer.
+        }
+
+        MerchantStock merchantStock = null;
+        for (MerchantStock ms : merchantStockService.getMerchantStocks()) {
+            if (ms.getId().equals(merchantStockId)) {
+                merchantStock = ms;
+                break;
+            }
+        }
+
+        if (merchantStock == null) {
+            return 3; // Not merchant stock was found
+        }
+
+        Product product = null;
+        for (Product p : productService.getProducts()) {
+            if (p.getId().equals(merchantStock.getProductId())) {
+                product = p;
+                break;
+            }
+        }
+
+        if (product == null) {
+            return 4; // No product was found
+        }
+
+        int totalQty = 0;
+        ArrayList<Integer> parsedQuantities = new ArrayList<>();
+
+        for (Map<String, Object> buyerData : buyers) {
+            if (buyerData.get("quantity") == null) {
+                return 5; // Quantity field is required for all buyers
+            }
+            try {
+                int qty = (int) Math.round(Double.parseDouble(buyerData.get("quantity").toString()));
+                if (qty < 1) {
+                    return 6; // Quantity must be greater than zero.
+                }
+                parsedQuantities.add(qty);
+                totalQty += qty;
+            } catch (NumberFormatException e) {
+                return 7; // Quantity must be a valid number
+            }
+        }
+
+        if (merchantStock.getStock() < totalQty) {
+            return 8; // Insufficient merchant stock for the demanded quantity
+        }
+
+        double discountRate = 0.0;
+
+        if (totalQty >= 50) {
+            discountRate = 0.25;
+        } else if (totalQty >= 20) {
+            discountRate = 0.15;
+        } else if (totalQty >= 5) {
+            discountRate = 0.05;
+        }
+
+        double discountedUnitPrice = product.getPrice() * (1 - discountRate);
+
+        ArrayList<User> validatedUsers = new ArrayList<>();
+        ArrayList<Double> userCosts = new ArrayList<>();
+
+        for (int i = 0; i < buyers.size(); i++) {
+            Map<String, Object> buyerData = buyers.get(i);
+            Object userIdObj = buyerData.get("userId");
+
+            if (userIdObj == null || !userIdObj.toString().startsWith("U-")) {
+                return 9; // User ID is missing or must start with U-
+            }
+
+            String userId = userIdObj.toString();
+            User user = null;
+            for (User u : users) {
+                if (u.getId().equals(userId)) {
+                    user = u;
+                    break;
+                }
+            }
+
+            if (user == null) {
+                return 10; // User not found
+            }
+
+            double cost = discountedUnitPrice * parsedQuantities.get(i);
+            if (user.getBalance() < cost) {
+                return 11; // User has insufficient balance
+            }
+
+            validatedUsers.add(user);
+            userCosts.add(cost);
+        }
+
+        for (int i = 0; i < validatedUsers.size(); i++) {
+            User u = validatedUsers.get(i);
+            u.setBalance(u.getBalance() - userCosts.get(i));
+        }
+
+        merchantStock.setStock(merchantStock.getStock() - totalQty);
+
+        return 0; // Success
     }
 
 }

@@ -30,7 +30,7 @@ public class User {
     private String role;
 
     @NotNull(message = "Balance must not be null")
-    @Positive(message = "Balance must be a positive number")
+    @PositiveOrZero(message = "Balance must be a positive number")
     private double balance;
 
 }

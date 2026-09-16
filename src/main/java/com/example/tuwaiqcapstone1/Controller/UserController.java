@@ -10,6 +10,7 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -110,5 +111,40 @@ public class UserController {
         }
 
         return ResponseEntity.status(200).body(new ApiResponse("Merchant has ben added successfully"));
+    }
+
+    @PutMapping("/groupBuy/{merchantStockId}")
+    public ResponseEntity<ApiResponse> groupBuy(@PathVariable String merchantStockId, @RequestBody ArrayList<Map<String, Object>> buyers) {
+
+        int statusCode = userService.groupBuy(merchantStockId, buyers);
+
+        switch (statusCode) {
+            case 0:
+                return ResponseEntity.status(200).body(new ApiResponse("Group buy completed successfully!"));
+            case 1:
+                return ResponseEntity.status(400).body(new ApiResponse("MerchantStock ID must start with MS"));
+            case 2:
+                return ResponseEntity.status(400).body(new ApiResponse("Group buy requires at least one buyer."));
+            case 3:
+                return ResponseEntity.status(400).body(new ApiResponse("No merchant stock was found"));
+            case 4:
+                return ResponseEntity.status(400).body(new ApiResponse("No product was found"));
+            case 5:
+                return ResponseEntity.status(400).body(new ApiResponse("Quantity field is required for all buyers"));
+            case 6:
+                return ResponseEntity.status(400).body(new ApiResponse("Quantity must be greater than zero."));
+            case 7:
+                return ResponseEntity.status(400).body(new ApiResponse("Quantity must be a valid number"));
+            case 8:
+                return ResponseEntity.status(400).body(new ApiResponse("Insufficient merchant stock for the demanded quantity"));
+            case 9:
+                return ResponseEntity.status(400).body(new ApiResponse("User ID is missing or must start with U-"));
+            case 10:
+                return ResponseEntity.status(400).body(new ApiResponse("User not found"));
+            case 11:
+                return ResponseEntity.status(400).body(new ApiResponse("User has insufficient balance"));
+            default:
+                return ResponseEntity.status(400).body(new ApiResponse("An unexpected error occurred."));
+        }
     }
 }
