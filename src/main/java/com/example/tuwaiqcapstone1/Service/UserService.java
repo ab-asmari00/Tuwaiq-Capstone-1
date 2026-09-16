@@ -107,4 +107,50 @@ public class UserService {
         return 0; // Purchase done successfully
     }
 
+    public int addBalance(String userId, double amount) {
+
+        User user = null;
+        for (User u : users) {
+            if (u.getId().equals(userId)) {
+                user = u;
+                break;
+            }
+        }
+        if (user == null) {
+            return 1; // UserId was not found
+        }
+
+        if (amount <= 0) {
+            return 2; // Invalid amount
+        }
+
+        user.setBalance(user.getBalance() + amount);
+
+        return 0; // Balance added successfully
+    }
+
+    public int addMerchant(String userId, String merchantId, String merchantName) {
+
+        User user = null;
+        for (User u : users) {
+            if (u.getId().equals(userId)) {
+                user = u;
+                break;
+            }
+        }
+        if (user == null) {
+            return 1; // UserId was not found
+        }
+
+        if (!user.getRole().equals("Admin")) {
+            return 2; // User is not an Admin
+        }
+
+        Merchant merchant = new Merchant(merchantId, merchantName);
+
+        merchantService.addMerchant(merchant);
+
+        return 0; // Merchant added successfully
+    }
+
 }

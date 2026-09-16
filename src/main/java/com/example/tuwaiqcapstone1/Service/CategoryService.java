@@ -3,12 +3,16 @@ package com.example.tuwaiqcapstone1.Service;
 import com.example.tuwaiqcapstone1.Model.Category;
 import com.example.tuwaiqcapstone1.Model.Product;
 import lombok.Data;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryService {
+
+    private final ProductService productService;
 
     private ArrayList<Category> categories = new ArrayList<>();
 
@@ -42,10 +46,17 @@ public class CategoryService {
         return false;
     }
 
-//    // Here put GetCategoryProducts()
-//
-//    public ArrayList<Product> GetCategoryProducts(String id) {
-//
-//    }
+    public ArrayList<Product> GetCategoryProducts(String id) {
+
+        ArrayList<Product> result = new ArrayList<>();
+
+        for (Product p : productService.getProducts()) {
+            if (p.getCategoryId().equals(id)) {
+                result.add(p);
+            }
+        }
+
+        return result;
+    }
 
 }
